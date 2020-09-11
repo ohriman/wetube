@@ -7,7 +7,7 @@ export const home = (req, res) => {
 export const search = (req, res) => {
   // const searchingBy = req.query.term 과 같음
   const {query: { term: searchingBy }} = req;
-  res.render("search", {pageTitle: 'Search', searchingBy});
+  res.render("search", { pageTitle: 'Search', searchingBy, videos });
 };
 
 export const upload = (req, res) => 
