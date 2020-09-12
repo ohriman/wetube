@@ -20,16 +20,15 @@ export const postJoin = (req, res) => {
 
 export const getLogin = (req, res) => 
   res.render("login", {pageTitle: 'Log In'});
-
-
 export const postLogin = (req, res) => {
   res.redirect(routes.home);
 };
 
+export const logout = (req, res) => {
+  // To do: Process Log Out(할일: 로그아웃 처리)
+  res.redirect(routes.home);
+}
 
-
-export const logout = (req, res) => 
-  res.render("logout", {pageTitle: 'Log Out'});
 
 export const userDetail = (req, res) => 
   res.render("userDetail", {pageTitle: 'User Detail'});
