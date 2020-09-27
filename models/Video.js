@@ -18,7 +18,7 @@ const VideoSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  comment: [
+  comments: [
     {
       // 모든 Commned ID를 array로 video에 집어 넣는 방식
       type: mongoose.Schema.Types.ObjectId,
