@@ -1,7 +1,7 @@
 extends layouts/main
 
 block content
-  .form-container
-    form(action=routes.editProfile, method="post")
-      label(for="avatar") Avatar
-      input(type="file", id="avatar", name="avatar")
+  .user-profile
+    .user-profile__header
+      img.avatar(scr=user.avatarUrl)
+      h4.progile__username=user.name

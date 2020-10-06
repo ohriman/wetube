@@ -1,10 +1,13 @@
+import passport from "passport";
 import routes from "../routes";
+import User from "../models/User";
 
+// 회원가입
 export const getJoin = (req, res) => {
   res.render("join", { pageTitle: "Join" });
 };
 
-export const postJoin = (req, res) => {
+export const postJoin = async (req, res, next) => {
   const {
     body: { name, email, password, password2 },
   } = req;
@@ -12,26 +15,97 @@ export const postJoin = (req, res) => {
     res.status(400);
     res.render("join", { pageTitle: "Join" });
   } else {
-    // To do: Register User (할일: 사용자 등록)
-    // To do: Log user in (할일: 사용자 로그인)
-    res.redirect(routes.home);
+    try {
+      const user = await User({
+        name,
+        email,
+      });
+      await User.register(user, password);
+      next();
+    } catch (error) {
+      console.log(error);
+      res.redirect(routes.home);
+    }
   }
 };
 
+// 일반 로그인
 export const getLogin = (req, res) =>
   res.render("login", { pageTitle: "Log In" });
-export const postLogin = (req, res) => {
+
+export const postLogin = passport.authenticate("local", {
+  failureRedirect: routes.login,
+  successRedirect: routes.home,
+});
+
+// Github로 로그인하기
+export const githubLogin = passport.authenticate("github");
+
+export const githubLoginCallback = async (_, __, profile, cb) => {
+  const {
+    _json: { id, avatarUrl, name, email },
+  } = profile;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      user.githubId = id;
+      user.save();
+      return cb(null, user);
+    }
+    const newUser = await User.create({
+      email,
+      name,
+      githubId: id,
+      avatarUrl,
+    });
+    return cb(null, newUser);
+  } catch (error) {
+    return cb(error);
+  }
+};
+
+export const postGithubLogin = (req, res) => {
   res.redirect(routes.home);
 };
 
+// Facebook으로 로그인하기
+export const facebookLogin = passport.authenticate("facebook");
+
+export const facebookLoginCallback = (
+  accessToken,
+  refreshToken,
+  profile,
+  cb
+) => {
+  console.log(accessToken, refreshToken, profile, cb);
+};
+
+export const postFacebookLogin = (req, res) => {
+  res.redirect(routes.home);
+};
+
+// 로그아웃
 export const logout = (req, res) => {
-  // To do: Process Log Out(할일: 로그아웃 처리)
+  req.logout();
   res.redirect(routes.home);
 };
 
-export const userDetail = (req, res) =>
-  res.render("userDetail", { pageTitle: "User Detail" });
+// 유저 설정, 변경
+export const getMe = (req, res) => {
+  res.render("userDetail", { pageTitle: "User Detail", user: req.user });
+};
 
+export const userDetail = async (req, res) => {
+  const {
+    params: { id },
+  } = req;
+  try {
+    const user = await User.findById(id);
+    res.render("userDetail", { pageTitle: "User Detail", user });
+  } catch (error) {
+    res.redirect(routes.home);
+  }
+};
 export const editProfile = (req, res) =>
   res.render("editProfile", { pageTitle: "Edit Profile" });
 
